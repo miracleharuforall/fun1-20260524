@@ -742,4 +742,4 @@ elif page == "한계 및 결론":
     box("card", "한계", "- OCR 기반 분석이므로 PDF 품질에 따라 일부 텍스트 추출 오류가 발생할 수 있습니다.<br/>- 키워드 및 threshold 기반 자동평가는 문맥적 의미를 완전히 반영하지 못할 수 있습니다.<br/>- 실제 개인정보 처리 현황과 처리방침 기재 내용의 일치 여부는 별도 실태조사나 감사가 필요합니다.<br/>- 조건부 항목은 외부 공개문서만으로 실제 해당 여부를 완전히 판단하기 어렵습니다.<br/>- 동일 금융회사가 여러 개인정보처리방침 URL을 운영하는 경우, 본 연구는 실제 PDF로 저장하여 분석한 URL을 기준으로 관리했습니다.")
 
     st.markdown('<div class="section-title">제출 정보</div>', unsafe_allow_html=True)
-    box("card", "GitHub Repository", '<a href="https://github.com/funjooooo/2024720420_-" target="_blank">https://github.com/funjooooo/2024720420_-</a><br/><br/><b>최종 제출물</b><br/>- 결과 보고서 PDF<br/>- 발표자료 PPT<br/>- Streamlit 대시보드<br/>- GitHub Repository 및 README.md')
+    box("card", "GitHub Repository", '<a href="https://github.com/miracleharuforall/fun1-20260524" target="_blank">https://github.com/miracleharuforall/fun1-20260524</a><br/><br/><b>최종 제출물</b><br/>- 결과 보고서 PDF<br/>- 발표자료 PPT<br/>- Streamlit 대시보드<br/>- GitHub Repository 및 README.md')

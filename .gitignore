@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+
+data/raw_pdf/
+data/raw_pdf_test/
+
+reports/
+
+.DS_Store
+Thumbs.db

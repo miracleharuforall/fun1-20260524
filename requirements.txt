@@ -3,7 +3,8 @@ pandas
 openpyxl
 matplotlib
 plotly
-chromadb
+chromadb==0.5.5
+protobuf==4.25.3
 sentence-transformers
 openai
 python-dotenv

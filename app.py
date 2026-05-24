@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from src.rag_engine import answer_question, is_rag_ready
+
 
 
 # ============================================================
@@ -742,6 +742,17 @@ elif page == "회사별 상세 조회":
 # ============================================================
 
 elif page == "RAG 질의응답":
+    try:
+        from src.rag_engine import answer_question, is_rag_ready
+    except Exception as e:
+        st.error(
+            "RAG 모듈을 불러오는 중 오류가 발생했습니다. "
+            "Streamlit Cloud 환경에서는 ChromaDB 의존성 문제로 RAG 기능이 제한될 수 있습니다. "
+            "기본 분석 대시보드는 정상 이용할 수 있습니다."
+        )
+        st.code(str(e))
+        st.stop()
+
     st.markdown('<div class="section-title">RAG 질의응답</div>', unsafe_allow_html=True)
 
     st.markdown(

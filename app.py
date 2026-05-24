@@ -1,9 +1,12 @@
 
 from pathlib import Path
+import os
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
+from src.rag_engine import answer_question, is_rag_ready
 
 
 # ============================================================
@@ -253,7 +256,17 @@ with st.sidebar:
     st.markdown("## 🔐 Privacy Policy")
     st.markdown("금융회사 개인정보처리방침  \n자동 점검 및 업권별 기재 수준 분석")
     st.divider()
-    page = st.radio("페이지 이동", ["프로젝트 개요", "핵심 지표", "분석 결과", "회사별 상세 조회", "한계 및 결론"])
+    page = st.radio(
+    "페이지 이동",
+    [
+        "프로젝트 개요",
+        "핵심 지표",
+        "분석 결과",
+        "회사별 상세 조회",
+        "RAG 질의응답",
+        "한계 및 결론",
+    ],
+)
     st.divider()
     st.markdown("### Data Mining Project")
     st.markdown("최종 분석 대상: **122개**")
@@ -722,6 +735,130 @@ elif page == "회사별 상세 조회":
     fig = style_fig(fig, height=420)
     fig.update_yaxes(range=[0, 1.15])
     st.plotly_chart(fig, use_container_width=True)
+
+
+# ============================================================
+# RAG 질의응답
+# ============================================================
+
+elif page == "RAG 질의응답":
+    st.markdown('<div class="section-title">RAG 질의응답</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <div class="section-subtitle">
+        개인정보처리방침 정제 텍스트를 JSON으로 구조화하고, 문서 chunk를 VectorDB에 저장한 뒤,
+        사용자의 자연어 질문에 대해 관련 문서 조각을 검색하고 LLM이 근거 기반 답변을 생성합니다.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    box(
+        "warning",
+        "해석 시 주의",
+        "RAG 답변은 VectorDB에서 검색된 개인정보처리방침 문서 조각을 기반으로 생성됩니다. "
+        "검색 근거에 없는 내용은 확인하기 어렵고, 조건부 항목은 법 위반 여부가 아니라 공개 처리방침상 명시 여부로 해석해야 합니다."
+    )
+
+    if not is_rag_ready():
+        st.error(
+            "VectorDB가 아직 구축되지 않았습니다. 먼저 PowerShell에서 "
+            "`python src/build_vectordb.py`를 실행하세요."
+        )
+        st.stop()
+
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    try:
+        if "OPENAI_API_KEY" in st.secrets:
+            api_key = st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        pass
+
+    if not api_key:
+        st.error(
+            "OPENAI_API_KEY가 설정되어 있지 않습니다. "
+            "로컬에서는 .env 파일에 OPENAI_API_KEY를 저장하고, "
+            "Streamlit Cloud에서는 App settings > Secrets에 OPENAI_API_KEY를 등록하세요."
+        )
+        st.stop()
+
+    st.markdown("### 질문 입력")
+
+    example_questions = [
+        "AIA생명보험은 개인정보 국외이전을 고지하고 있나요?",
+        "은행 업권에서 디지털 투명성 지표가 높은 이유는 무엇인가요?",
+        "C15 제3자 행태정보 항목의 누락률이 높은 이유는 무엇인가요?",
+        "보험 업권에서 자동화된 결정 관련 내용을 찾을 수 있나요?",
+        "개인정보 보호책임자 항목이 잘 기재된 회사를 알려줘",
+    ]
+
+    selected_example = st.selectbox(
+        "예시 질문 선택",
+        ["직접 입력"] + example_questions,
+    )
+
+    default_question = "" if selected_example == "직접 입력" else selected_example
+
+    user_question = st.text_area(
+        "질문",
+        value=default_question,
+        height=120,
+        placeholder="예: 은행 업권에서 국외이전 관련 내용을 설명해줘",
+    )
+
+    top_k = st.slider(
+        "검색할 근거 문서 조각 수",
+        min_value=3,
+        max_value=10,
+        value=5,
+        step=1,
+    )
+
+    if st.button("질문하기"):
+        if not user_question.strip():
+            st.warning("질문을 입력하세요.")
+            st.stop()
+
+        with st.spinner("VectorDB 검색 및 LLM 답변 생성 중입니다..."):
+            try:
+                answer, contexts = answer_question(
+                    user_question,
+                    top_k=top_k,
+                    api_key=api_key,
+                )
+            except Exception as e:
+                st.error("RAG 답변 생성 중 오류가 발생했습니다.")
+                st.code(str(e))
+                st.stop()
+
+        st.markdown("### LLM 답변")
+        st.markdown(
+            f"""
+            <div class="card">
+            {answer}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("### 검색 근거")
+
+        for idx, ctx in enumerate(contexts, start=1):
+            with st.expander(f"근거 {idx}: {ctx.get('company_name')} / chunk {ctx.get('chunk_no')}"):
+                st.write(f"**회사명:** {ctx.get('company_name')}")
+                st.write(f"**업권:** {ctx.get('sector')}")
+                st.write(f"**파일명:** {ctx.get('file_name')}")
+                st.write(f"**chunk 번호:** {ctx.get('chunk_no')}")
+
+                policy_url = ctx.get("policy_url")
+
+                if policy_url:
+                    st.markdown(f"**개인정보처리방침 URL:** [{policy_url}]({policy_url})")
+
+                st.write("**검색 문서 조각:**")
+                st.write(ctx.get("text"))
 
 
 # ============================================================

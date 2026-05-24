@@ -5,7 +5,10 @@ __pycache__/
 
 data/raw_pdf/
 data/raw_pdf_test/
+data/vector_db/
+data/policies_json/
 
+backup_before_rag/
 reports/
 
 .DS_Store

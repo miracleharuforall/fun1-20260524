@@ -773,9 +773,11 @@ elif page == "RAG 질의응답":
     )
 
     if not is_rag_ready():
-        st.error(
-            "VectorDB가 아직 구축되지 않았습니다. 먼저 PowerShell에서 "
-            "`python src/build_vectordb.py`를 실행하세요."
+        st.warning(
+            "RAG 질의응답 기능은 로컬 환경에서 ChromaDB 기반 VectorDB를 구축하여 실행하는 프로토타입입니다. "
+            "Streamlit Cloud 배포본에는 VectorDB 파일을 포함하지 않아 기본 분석 대시보드 중심으로 제공됩니다. "
+            "로컬에서 RAG 기능을 실행하려면 PowerShell에서 "
+            "`python src/build_vectordb.py` 실행 후 `python src/rag_answer.py`를 실행하세요."
         )
         st.stop()
 

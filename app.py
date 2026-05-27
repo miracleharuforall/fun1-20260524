@@ -22,7 +22,7 @@ ANALYSIS_PATH = DATA_DIR / "analysis_dataset.xlsx"
 COMPANIES_PATH = DATA_DIR / "companies.csv"
 
 st.set_page_config(
-    page_title="금융회사 개인정보처리방침 자동 점검",
+    page_title="금융회사 개인정보처리방침 자동 검토",
     page_icon="🔐",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -254,7 +254,7 @@ COLOR_SEQ = ["#2563eb", "#38bdf8", "#22c55e", "#f97316", "#8b5cf6", "#ef4444", "
 
 with st.sidebar:
     st.markdown("## 🔐 Privacy Policy")
-    st.markdown("금융회사 개인정보처리방침  \n자동 점검 및 업권별 기재 수준 분석")
+    st.markdown("금융회사 개인정보처리방침  \n자동 검토 및 업권별 기재 수준 분석")
     st.divider()
     page = st.radio(
     "페이지 이동",
@@ -282,10 +282,10 @@ if page == "프로젝트 개요":
         """
         <div class="hero">
             <div class="hero-small">DATA MINING PROJECT</div>
-            <div class="hero-title">금융회사 개인정보처리방침<br/>자동 점검 대시보드</div>
+            <div class="hero-title">금융회사 개인정보처리방침<br/>자동 검토 대시보드</div>
             <div class="hero-desc">
                 국내 금융회사 홈페이지에 공개된 개인정보처리방침을 수집하고,
-                개인정보보호위원회 「개인정보 처리방침 작성지침('26년 4월 24일 기준)」 24개 항목을 기준으로
+                개인정보보호위원회 「개인정보 처리방침 작성지침('26년 4월 기준)」 24개 항목을 기준으로
                 업권별 기재 수준을 분석한 결과입니다.
             </div>
         </div>
@@ -747,8 +747,7 @@ elif page == "RAG 질의응답":
     except Exception as e:
         st.error(
             "RAG 모듈을 불러오는 중 오류가 발생했습니다. "
-            "Streamlit Cloud 환경에서는 ChromaDB 의존성 문제로 RAG 기능이 제한될 수 있습니다. "
-            "기본 분석 대시보드는 정상 이용할 수 있습니다."
+            "Streamlit Cloud 환경에서는 RAG 기능이 제한될 수 있습니다."
         )
         st.code(str(e))
         st.stop()
